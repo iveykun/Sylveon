@@ -27,12 +27,13 @@ def run():
     app.run(host='0.0.0.0', port=8000)
 
 def keep_alive():
+    #time.sleep(2000)
     server = Thread(target=run)
     server.start()
 status = ['Use', 'the', 'prefix', '!']
 
 #not sure it works anymore because a python program can't save itself, it has to be saved manually
-praisecount = 12
+praisecount = 18
 
 class VoiceError(Exception):
     pass
@@ -40,7 +41,9 @@ class VoiceError(Exception):
 
 class YTDLError(Exception):
     pass
+
 #stolen from the official gitbhub, those are the recommended settings.
+
 class YTDLSource(discord.PCMVolumeTransformer):
     YTDL_OPTIONS = {
         'format': 'bestaudio/best',
@@ -60,7 +63,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
     FFMPEG_OPTIONS = {
         'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-        'options': '-vn',
+        'options': '-vn -probesize 42M',
     }
 
     ytdl = youtube_dl.YoutubeDL(YTDL_OPTIONS)
@@ -213,6 +216,8 @@ class YTDLSource(discord.PCMVolumeTransformer):
                 duration.append('{}'.format(hours))
             if minutes > 0:
                 duration.append('{}'.format(minutes))
+            if seconds < 10:
+                duration.append('{}'.format(0))
             if seconds > 0:
                 duration.append('{}'.format(seconds))
             
@@ -223,6 +228,27 @@ class YTDLSource(discord.PCMVolumeTransformer):
         
         return value
 
+class AudioSourceTracked(discord.AudioSource):
+  def __init__(self, source):
+      self._source = source
+      self.count_20ms = 0
+      # every read is 20 miliseconds so we can just calculate that
+  def read(self) -> bytes:
+      data = self._source.read()
+      if data:
+          self.count_20ms += 1
+      return data
+  @property
+  def progress(self) -> float:
+      millis = self.count_20ms * 0.02 # count_20ms * 20ms
+      seconds=(millis/1000)%60
+      seconds = int(seconds)
+      minutes=(millis/(1000*60))%60
+      minutes = int(minutes)
+      hours=(millis/(1000*60*60))%24
+
+      return str("%d:%d:%d" % (hours, minutes, seconds))
+
 
 class Song:
     __slots__ = ('source', 'requester')
@@ -232,17 +258,20 @@ class Song:
         self.requester = source.requester
 
     def create_embed(self):
+        
+        #track = AudioSourceTracked(self.source)
+        #track.read()
+        dur = (self.source.duration)
         embed = (discord.Embed(title='Now singing',
                                description='```css\n{0.source.title}\n```'.format(self),
                                color=discord.Color.blurple())
-                 .add_field(name='Duration', value=self.source.duration)
+                 .add_field(name='Duration', value=dur)
                  .add_field(name='Requested by', value=self.requester.mention)
                  .add_field(name='Uploader', value='[{0.source.uploader}]({0.source.uploader_url})'.format(self))
                  .add_field(name='URL', value='[Click]({0.source.url})'.format(self))
                  .set_thumbnail(url=self.source.thumbnail))
 
         return embed
-
 
 class SongQueue(asyncio.Queue):
     def __getitem__(self, item):
