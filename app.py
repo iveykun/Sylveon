@@ -22,7 +22,6 @@ app = Flask('')
 @app.route('/')
 def main():
     return 'present!'
-
 def run():
     app.run(host='0.0.0.0', port=8000)
 
@@ -348,7 +347,7 @@ class VoiceState:
                     async with timeout(180):  # 3 minutes
                         self.current = await self.songs.get()
                 except asyncio.TimeoutError:
-                    await self._ctx.send("Humf, if you're not listening, then I'm leaving")
+
                     self.bot.loop.create_task(self.stop())
                     #self.voice.leave
 
