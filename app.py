@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Valentin B.
+# Copyright (c) 2019 Valentin B. modified for my own uses by ivey-kun 
 import os
 from flask import Flask
 from threading import Thread
@@ -16,7 +16,7 @@ from async_timeout import timeout
 from discord.ext import commands
 
 token = os.environ['p1']
- #SHOULD BE REDACTED
+ #SHOULD BE REDACTED, this is the token of the bot
 app = Flask('')
 
 @app.route('/')
