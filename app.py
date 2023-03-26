@@ -1,6 +1,5 @@
 # Copyright (c) 2019 Valentin B. modified for my own uses by ivey-kun 
 import os
-from flask import Flask
 from threading import Thread
 import asyncio
 import functools
@@ -11,25 +10,15 @@ import ffmpeg
 import time
 import discord
 #from ctypes.util import find_library
-import youtube_dl
+import yt_dlp
 from async_timeout import timeout
 from discord.ext import commands
 
-token = os.environ['p1']
+token = ''
  #SHOULD BE REDACTED, this is the token of the bot
-app = Flask('')
 
-@app.route('/')
-def main():
-    return 'present!'
-def run():
-    app.run(host='0.0.0.0', port=8000)
-
-def keep_alive():
-    #time.sleep(2000)
-    server = Thread(target=run)
-    server.start()
 status = ['Use', 'the', 'prefix', '!']
+intents = discord.Intents.all()
 
 #not sure it works anymore because a python program can't save itself, it has to be saved manually
 praisecount = 18
@@ -65,7 +54,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         'options': '-vn -probesize 42M',
     }
 
-    ytdl = youtube_dl.YoutubeDL(YTDL_OPTIONS)
+    ytdl = yt_dlp.YoutubeDL(YTDL_OPTIONS)
 
     #documentation is really great because it saves me he bulk of the work
 
@@ -349,7 +338,6 @@ class VoiceState:
                 except asyncio.TimeoutError:
 
                     self.bot.loop.create_task(self.stop())
-                    #self.voice.leave
 
                     self.exists = False
                     
@@ -578,16 +566,19 @@ class Music(commands.Cog):
         async with ctx.typing():
             try:
                 source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
-            except YTDLError as e:
+            except Exception as e:
                 await ctx.send('I can\'t understand this... {}'.format(str(e)))
             else:
-                if not ctx.voice_state.voice:
-                    await ctx.invoke(self._join)
+                try:
+                    if not ctx.voice_state.voice:
+                        await ctx.invoke(self._join)
 
-                song = Song(source)
+                    song = Song(source)
 
-                await ctx.voice_state.songs.put(song)
-                await ctx.send('Enqueued {}'.format(str(source)))
+                    await ctx.voice_state.songs.put(song)
+                    await ctx.send('Enqueued {}'.format(str(source)))
+                except Exception as e:
+                    await ctx.send('I can\'t understand this... {}'.format(str(e)))
 
     @commands.command(name='search')
     async def _search(self, ctx: commands.Context, *, search: str):
@@ -671,14 +662,14 @@ class Music(commands.Cog):
         await message.channel.send('ping praise clever time happy date help? play pause resume leave')
         
 
-bot = commands.Bot('!', description='I am the cutest Eevee, who sings and dances for you! Prefix is !')
-bot.add_cog(Music(bot))
 
+bot = commands.Bot('!', intents=intents)
 
 @bot.event
 async def on_ready():
+
+    await bot.add_cog(Music(bot))
     print('Logged in as:\n{0.user.name}\n{0.user.id}'.format(bot))
     #await birthday()
 
-keep_alive()
-bot.run(token, bot=True, reconnect=True)
+bot.run(token)
