@@ -6,3 +6,13 @@ You have to put a token in a separate file (secrets on replit).
 This bot is confirmed to work 24/7 as of 2023/3/25!
 
 The current command is "!"
+
+List of commands: 
+!play [url] or !p
+!pause
+!resume
+!ping
+!search [search term]
+!loop (use the command again to unloop)
+!queue or !q
+!np (now playing)
