@@ -5,6 +5,8 @@ You have to put a token in a separate file (secrets on replit).
 
 This bot is confirmed to work 24/7 as of 2023/3/25!
 
+Works on both linux and windows
+
 The current command is "!"
 
 List of commands: 
@@ -16,3 +18,8 @@ List of commands:
 !loop (use the command again to unloop)
 !queue or !q
 !np (now playing)
+
+Requirements: 
+discord.py == 2.2.2
+PyNaCl
+FFmpeg
