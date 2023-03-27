@@ -11,15 +11,26 @@ The current command is "!"
 
 List of commands: 
 !play [url] or !p
+
 !pause
+
 !resume
+
 !ping
+
 !search [search term]
+
 !loop (use the command again to unloop)
+
 !queue or !q
+
 !np (now playing)
 
 Requirements: 
 discord.py == 2.2.2
+
 PyNaCl
+
 FFmpeg
+
+yt-dlp
