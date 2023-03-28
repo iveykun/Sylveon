@@ -7,6 +7,8 @@ This bot is confirmed to work 24/7 as of 2023/3/25!
 
 Works on both linux and windows
 
+Just paste token in the token field, and run the app.py file
+
 The current command is "!"
 
 List of commands: 
